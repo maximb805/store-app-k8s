@@ -20,6 +20,19 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      
+      - name: Build, tag and push image to Docker Hub
+        id: build-image
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t maximb805/store:$IMAGE_TAG .
+          docker push maximb805/store:$IMAGE_TAG
+          echo "::set-output name=image::maximb805/store:$IMAGE_TAG"
+
+      # - name: other step that needs the created image   
+      #   run: |
+      #     ${{ steps.build-image.outputs.image }}  так можно использовать output
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1 # для яндекса есть спец. action

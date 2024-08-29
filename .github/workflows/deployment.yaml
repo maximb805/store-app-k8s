@@ -33,6 +33,9 @@ jobs:
       # - name: other step that needs the created image   
       #   run: |
       #     ${{ steps.build-image.outputs.image }}  так можно использовать output
+      
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v1
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1 # для яндекса есть спец. action
@@ -40,4 +43,11 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}   # это секреты в github
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1  # можно глянуть более удачный регион
+
+      - name: Set kubectl context to AWS 
+        run: aws eks update-kubeconfig --name aws-cluster-name --region us-east-1 # естественно нужны данные реального AWS кластера
+
+      - name : Deploy Image to Amazon EKS
+        run: |
+          kubectl set image deployment/store store=${{ steps.build-image.outputs.image }}
 
